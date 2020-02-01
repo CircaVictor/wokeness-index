@@ -108,6 +108,16 @@ WITH target_fec_files AS (
      AND EXISTS (SELECT 1
                    FROM principal_committee_actors p
                   WHERE p.id = e.actor_committee_id)
+         -- check that we are not looking at bundled expenditures
+     AND NOT EXISTS (SELECT 1
+                       FROM expenditures_2020_cycle_maintenance chk
+                      WHERE chk.form_id = e.form_id
+                        AND grouped = true)
+         -- check that we are not looking duplicate expenditures
+     AND NOT EXISTS (SELECT 1
+                       FROM expenditures_2020_cycle_maintenance chk
+                      WHERE chk.form_id = e.form_id
+                        AND duplicate = true)
 
 ), woke_with_actors AS (
 
@@ -177,6 +187,6 @@ WITH target_fec_files AS (
 
 )
 SELECT *
-  FROM woke_with_actors;
+  FROM woke_grouped;
 
   
